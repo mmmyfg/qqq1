@@ -1,0 +1,264 @@
+<html>
+<head>
+  <title>商品搜索和购物车</title>
+  <style>
+    /* CSS样式 */
+    @keyframes backgroundAnimation {
+      0% {
+        background-color: rgb(160, 247, 241); /* 起始颜色 */
+      }
+      50% {
+        background-color: rgb(228, 237, 148); /* 中间颜色 */
+      }
+      100% {
+        background-color: rgb(160, 247, 241); /* 结束颜色 */
+      }
+    }
+    
+    html, body {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      animation: backgroundAnimation 10s infinite;
+    }
+
+ 
+    .search-form {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #2f3640;
+    height: 40px;
+    padding: 10px;
+    border-radius: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.search-input {
+    border: none;
+    background: none;
+    outline: none;
+    color: rgb(11, 222, 219);
+    font-size: 16px;
+    line-height: 40px;
+    width: 0;
+    transition: width 0.4s;
+    margin-right: 10px; 
+}
+
+.search-button {
+    color: rgb(202, 51, 13);
+    background-color: #b5e075;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.4s;
+}
+
+.search-form:hover .search-input {
+    width: 240px;  
+    padding: 0 6px;
+}
+
+.search-form:hover .search-button {
+    background-color: rgb(225, 94, 12);;
+}
+
+    .select-module {
+      margin-left: 10px;
+    }
+
+    .cart-container {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background-color: rgb(229, 198, 24);
+      border: 3px solid rgb(225, 18, 18);
+      border-radius: 5px;
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .cart-container:hover {
+      box-shadow: 0 0 10px rgba(153, 0, 0, 0.1);
+    }
+
+    .remove-button {
+      cursor: pointer;
+      color: red;
+      margin-left: 10px;
+    }
+
+    .logo {
+    position: absolute; /* 使用绝对定位 */
+    top: 0px; /* 距离顶部10像素 */
+    left: 0px; /* 距离左边10像素 */
+    width: 300px; /* 控制图片宽度，根据需要调整 */
+    height: auto; /* 高度自动缩放以保持图片比例 */
+}
+   
+    .team {
+    position: absolute; /* 使用绝对定位 */
+    top: 600px; /* 距离顶部10像素 */
+    left: 0px; /* 距离左边10像素 */
+    width: 100px; /* 控制图片宽度，根据需要调整 */
+    height: auto; /* 高度自动缩放以保持图片比例 */
+    }
+
+
+
+
+    .add-button {
+    background-color: #ec0c0c; /* 按钮的背景颜色 */
+    color: rgb(239, 234, 208); /* 文字颜色 */
+    border: none; /* 去除边框 */
+    cursor: pointer; /* 鼠标悬停时显示手型指针 */
+    padding: 0; /* 移除内边距，使用其他方法调整对齐 */
+    border-radius: 50%; /* 使按钮边缘完全圆形 */
+    display: inline-block; /* 使元素以块级方式显示，但仍然位于行内 */
+    width: 30px; /* 宽度，确保足以包含文字或图标 */
+    height: 30px; /* 高度，与宽度相同，确保是圆形 */
+    line-height: 30px; /* 行高，与高度一致以确保垂直居中 */
+    text-align: center; /* 文本居中显示 */
+    vertical-align: middle; /* 垂直居中对齐 */
+    transition: background 0.3s, transform 0.3s; /* 平滑过渡效果 */
+    font-size: 12px; /* 调整字体大小以适应按钮 */
+}
+
+.add-button:hover {
+    background-color: #367b71; /* 悬停时的背景颜色 */
+    transform: scale(1.1); /* 悬停时略微放大 */
+}
+
+
+
+
+
+    #searchResults {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    background-color: #aedcef;
+    padding: 10px;
+    border-radius: 25px;
+    box-shadow: 0 4px 8px rgba(23, 14, 14, 0.1);
+    margin-top: 30px;
+    width: 80%;
+    max-width: 350px;
+    text-align: center;
+    overflow: visible;
+    display: none; /* 初始状态为隐藏 */
+}
+</style>
+</head>
+<body>
+  <img src="logo.png" alt="Logo" class="logo">
+  <img src="team.png" alt="team" class="team">
+  <div class="search-form">
+    <input type="text" class="search-input" id="searchQuery" placeholder="search products..." />
+    <button class="search-button" onclick="searchProducts()">
+      <img src="search.png" alt="Search" style="width: 100%; height: auto;">
+  </button>
+  </div>
+  <div id="searchResults">
+    <!-- 搜索结果将显示在这里 -->
+  </div>
+  
+  <div class="cart-container">
+    <h3>shopping cart</h3>
+    <ul id="cartItems">
+      <!-- 购物车商品列表 -->
+    </ul>
+    <div>total</div>: <span id="totalPrice">0</span></div>
+  </div>
+  
+  <script>
+    var productsData = [
+      {
+        "id": 1,
+        "category": "drinks",
+        "name": "coke",
+        "price": 3.00
+      },
+      {
+        "id": 2,
+        "category": "foods",
+        "name": "ham",
+        "price": 5.00
+      },
+      {
+        "id": 3,
+        "category": "groceries",
+        "name": "bread",
+        "price": 2.50
+      }
+    ];
+    var currentFilteredProducts = [];  // 存储当前过滤后的产品列表
+    var cart = [];  // 存储购物车中的产品列表
+
+
+    function searchProducts() {
+    var query = document.getElementById('searchQuery').value.toLowerCase();
+    var searchResults = document.getElementById('searchResults');
+
+    // 清空当前的搜索结果，并保持隐藏直到有有效搜索
+    searchResults.innerHTML = '';
+    searchResults.style.display = 'none';  // 确保每次搜索时重新隐藏
+
+    // 检查是否有输入内容
+    if (query.trim() === '') {
+        return; // 如果没有输入，直接返回不执行搜索
+    }
+
+    var currentFilteredProducts = productsData.filter(function(product) {
+        return product.name.toLowerCase().includes(query);
+    });
+
+    if (currentFilteredProducts.length > 0) {
+        currentFilteredProducts.sort(function(a, b) { return a.price - b.price; });
+        var topProducts = currentFilteredProducts.slice(0, 5);
+
+        searchResults.innerHTML = topProducts.map(function(product, index) {
+            return `<div>${product.name} - £${product.price.toFixed(2)} <button class="add-button" onclick="addToCart(${index})">add</button></div>`;
+        }).join('');
+
+        searchResults.style.display = 'block';  // 有结果时显示搜索结果
+    }
+}
+
+    function addToCart(index) {
+      var product = currentFilteredProducts[index];
+      cart.push(product);
+      updateCart();
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);  // 移除指定索引的商品
+      updateCart();  // 更新购物车显示
+    }
+
+    function updateCart() {
+      var cartItems = document.getElementById('cartItems');
+      cartItems.innerHTML = cart.map(function(item, index) {
+        return `<li>${item.name} - £${item.price.toFixed(2)} <button class='remove-button' onclick='removeFromCart(${index})'>remove</button></li>`;
+      }).join('');
+      
+      var totalPrice = cart.reduce(function(sum, item) {
+        return sum + item.price;
+      }, 0);
+      
+      document.getElementById('totalPrice').textContent = '£' + totalPrice.toFixed(2);  // 添加货币单位£
+    }
+  </script>
+</body>
+</html> 
